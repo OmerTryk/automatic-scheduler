@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ders Formu - Bölüm Başkanı Paneli</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark text-white p-0 min-vh-100">
+                <div class="p-3 border-bottom">
+                    <h5>Ders Programı Sistemi</h5>
+                    <p class="text-muted small">Bölüm Başkanı</p>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/department-head/courses">
+                            <i class="fas fa-book me-2"></i> Dersler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/instructors">
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Eğitimciler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/schedules">
+                            <i class="fas fa-calendar-alt me-2"></i> Ders Programları
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i> Çıkış Yap
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-book me-2"></i>
+                        <span th:text="${course.id == null ? 'Yeni Ders Ekle' : 'Dersi Düzenle'}"></span>
+                    </h2>
+                    <a href="/department-head/courses" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Derslere Dön
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Ders Bilgileri</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/department-head/courses/save}" th:object="${course}" method="post">
+                            <input type="hidden" th:field="*{id}" />
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="code" class="form-label">Ders Kodu <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="code" th:field="*{code}" required>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Ders Adı <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="credits" class="form-label">Kredi <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="credits" name="credits" value="3" min="1" max="10" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="weeklyHours" class="form-label">Haftalık Ders Saati <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="weeklyHours" name="weeklyHours" min="1" max="10" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="instructor" class="form-label">Eğitimci</label>
+                                    <select class="form-select" id="instructorId" name="instructorId">
+                                        <option value="">Eğitimci Seçiniz</option>
+                                        <option th:each="instructor : ${instructors}" 
+                                                th:value="${instructor.id}" 
+                                                th:text="${instructor.user.fullName}">
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Ders Açıklaması</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="isElective" name="isElective">
+                                <label class="form-check-label" for="isElective">
+                                    Seçmeli Ders mi?
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/department-head/courses" class="btn btn-light me-md-2">İptal</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

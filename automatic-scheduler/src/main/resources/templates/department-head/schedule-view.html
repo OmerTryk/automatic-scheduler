@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ders Programı Görüntüleme - Bölüm Başkanı Paneli</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .schedule-grid {
+            border: 1px solid #dee2e6;
+        }
+        .schedule-cell {
+            height: 100px;
+            border: 1px solid #dee2e6;
+            padding: 0.3rem;
+            position: relative;
+        }
+        .course-block {
+            border-radius: 3px;
+            padding: 0.3rem;
+            height: 100%;
+            font-size: 0.8rem;
+            overflow: hidden;
+        }
+        .no-course {
+            background-color: #f8f9fa;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+        
+        /* Farklı dersler için renkler */
+        .bg-course-1 { background-color: #d1e7dd; }
+        .bg-course-2 { background-color: #f8d7da; }
+        .bg-course-3 { background-color: #cfe2ff; }
+        .bg-course-4 { background-color: #fff3cd; }
+        .bg-course-5 { background-color: #e2e3e5; }
+        .bg-course-6 { background-color: #d7f2fb; }
+        .bg-course-7 { background-color: #ffeeba; }
+        .bg-course-8 { background-color: #d6d8db; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark text-white p-0 min-vh-100">
+                <div class="p-2 border-bottom">
+                    <h6>Ders Programı Sistemi</h6>
+                    <small class="text-muted">Bölüm Başkanı</small>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/dashboard">
+                            <i class="fas fa-home me-1"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/courses">
+                            <i class="fas fa-book me-1"></i> Dersler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/instructors">
+                            <i class="fas fa-user me-1"></i> Eğitimciler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/department-head/schedules">
+                            <i class="fas fa-calendar me-1"></i> Programlar
+                        </a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a class="nav-link text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Çıkış
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-3">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show py-2" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>
+                        <i class="fas fa-calendar me-1"></i>
+                        <span th:text="${schedule.academicTerm}"></span> Programı
+                    </h5>
+                    <div>
+                        <a href="/department-head/schedules" class="btn btn-sm btn-secondary me-1">
+                            <i class="fas fa-arrow-left me-1"></i>Geri
+                        </a>
+                        <button class="btn btn-sm btn-primary" onclick="window.print()">
+                            <i class="fas fa-print me-1"></i>Yazdır
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-light py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fs-6 fw-medium">
+                                <span th:text="${department.name}"></span> Bölümü Haftalık Programı
+                            </span>
+                            <span th:if="${schedule.isActive}" class="badge bg-success">Aktif</span>
+                            <span th:unless="${schedule.isActive}" class="badge bg-secondary">Pasif</span>
+                        </div>
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="alert alert-info py-2 mb-2 small">
+                            <i class="fas fa-info-circle"></i>
+                            Bu program <span th:text="${#temporals.format(schedule.createdAt, 'dd/MM/yyyy')}"></span> tarihinde oluşturulmuştur.
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered schedule-grid table-sm">
+                                <thead>
+                                    <tr class="bg-light text-center">
+                                        <th style="width: 80px;">Saat</th>
+                                        <th th:each="day : ${days}" th:text="${day.turkishName}"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="hour : ${hours}">
+                                        <td class="text-center fw-medium small">
+                                            <span th:text="${@scheduleLookupHelper.formatTimeForDisplay(hour)}"></span>
+                                        </td>
+                                        <td th:each="day : ${days}" class="schedule-cell p-1">
+                                            <div th:with="courseItem=${scheduleGrid.get(day).get(hour)}">
+                                                <div th:if="${courseItem != null}" 
+                                                     th:class="'course-block bg-course-' + ${courseItem.course.id % 8 + 1}">
+                                                    <div class="fw-medium" th:text="${courseItem.course.code}"></div>
+                                                    <div class="small" th:text="${courseItem.course.name}"></div>
+                                                    <div class="small">
+                                                        <span th:if="${courseItem.instructor != null}" 
+                                                              th:text="${courseItem.instructor.user.fullName}">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div th:if="${courseItem == null}" class="no-course">
+                                                    <span>-</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-light py-2">
+                        <span class="fs-6 fw-medium"><i class="fas fa-list me-1"></i>Ders Listesi</span>
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Kod</th>
+                                        <th>Ders</th>
+                                        <th>Eğitimci</th>
+                                        <th>Zaman</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="small">
+                                    <tr th:each="item : ${scheduleItems}">
+                                        <td th:text="${item.course.code}"></td>
+                                        <td th:text="${item.course.name}"></td>
+                                        <td>
+                                            <span th:if="${item.instructor != null}" 
+                                                  th:text="${item.instructor.user.fullName}">
+                                            </span>
+                                            <span th:if="${item.instructor == null}" class="text-muted">-</span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${item.dayOfWeek.turkishName}"></span>,
+                                            <span th:text="${@scheduleLookupHelper.getFormattedTime(item)}"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eğitimci Paneli</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark text-white p-0 min-vh-100">
+                <div class="p-3 border-bottom">
+                    <h5>Ders Programı Sistemi</h5>
+                    <p class="text-muted small">Eğitimci</p>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/instructor/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/instructor/courses">
+                            <i class="fas fa-book me-2"></i> Derslerim
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/instructor/availability">
+                            <i class="fas fa-calendar-check me-2"></i> Müsaitlik
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/instructor/schedule">
+                            <i class="fas fa-calendar-alt me-2"></i> Ders Programım
+                        </a>
+                    </li>
+                    <!-- Mesajlar Menüsü -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/messages/inbox">
+                            <i class="fas fa-envelope me-2"></i> Mesajlar
+                            <span th:if="${unreadMessageCount != null && unreadMessageCount > 0}" 
+                                  class="badge bg-danger" th:text="${unreadMessageCount}"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i> Çıkış Yap
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div th:if="${instructor == null}" class="alert alert-warning">
+                    <h4 class="alert-heading">Eğitimci Atanmamış!</h4>
+                    <p>Henüz eğitimci olarak atanmamışsınız. Lütfen bölüm başkanınızla iletişime geçin.</p>
+                </div>
+                
+                <div th:if="${instructor != null}">
+                    <h2 class="mb-4">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>
+                        Hoş Geldiniz, <span th:text="${instructor.user.fullName}"></span>
+                    </h2>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Profil Bilgileri</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Ad Soyad:</strong> <span th:text="${instructor.user.fullName}"></span></p>
+                                    <p><strong>E-posta:</strong> <span th:text="${instructor.user.email}"></span></p>
+                                    <p><strong>Bölüm:</strong> <span th:text="${department != null ? department.name : 'Atanmamış'}"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Derslerim</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h3 class="text-center mb-3" th:text="${courses != null ? courses.size() : 0}">0</h3>
+                                    <p>Size atanan ders sayısı</p>
+                                    <a href="/instructor/courses" class="btn btn-outline-success w-100 mt-3">
+                                        Derslerimi Görüntüle
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Müsaitlik Durumu</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${availabilities != null && !availabilities.isEmpty()}">
+                                        <h3 class="text-center mb-3" th:text="${availabilities.size()}">0</h3>
+                                        <p>Belirttiğiniz müsait zaman aralığı sayısı</p>
+                                        <a href="/instructor/availability" class="btn btn-outline-info w-100 mt-2">
+                                            Müsaitlik Bilgilerimi Düzenle
+                                        </a>
+                                    </div>
+                                    <div th:if="${availabilities == null || availabilities.isEmpty()}">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Uyarı:</strong> Henüz müsaitlik bilgilerinizi belirtmediniz!
+                                        </div>
+                                        <p>Ders programı oluşturulabilmesi için müsaitlik bilgilerinizi eklemeniz gerekiyor.</p>
+                                        <a href="/instructor/availability/new" class="btn btn-outline-warning w-100 mt-2">
+                                            Müsaitlik Bilgisi Ekle
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mesajlar Kartı Eklendi -->
+                    <div class="row mt-3">
+                        <div class="col-md-12 mb-4">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Mesajlar</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 text-center">
+                                            <div class="mb-3">
+                                                <i class="fas fa-envelope-open-text fa-3x text-primary"></i>
+                                            </div>
+                                            <h5>Gelen Kutusu</h5>
+                                            <p>
+                                                <span class="badge bg-danger" th:if="${unreadMessageCount != null && unreadMessageCount > 0}" 
+                                                      th:text="${unreadMessageCount + ' okunmamış mesaj'}"></span>
+                                                <span th:if="${unreadMessageCount == null || unreadMessageCount == 0}">Okunmamış mesaj yok</span>
+                                            </p>
+                                            <a href="/messages/inbox" class="btn btn-outline-primary">Gelen Kutusuna Git</a>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <div class="mb-3">
+                                                <i class="fas fa-paper-plane fa-3x text-success"></i>
+                                            </div>
+                                            <h5>Yeni Mesaj</h5>
+                                            <p>Bölümünüzdeki kişilerle iletişim kurun</p>
+                                            <a href="/messages/compose" class="btn btn-outline-success">Mesaj Gönder</a>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <div class="mb-3">
+                                                <i class="fas fa-share fa-3x text-secondary"></i>
+                                            </div>
+                                            <h5>Gönderilen Kutusu</h5>
+                                            <p>Gönderdiğiniz mesajları görüntüleyin</p>
+                                            <a href="/messages/sent" class="btn btn-outline-secondary">Gönderilenlere Git</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-dark text-white">
+                                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Haftalık Ders Programım</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${schedule != null && scheduleItems != null && !scheduleItems.isEmpty()}" class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr class="bg-light">
+                                                    <th>Ders Kodu</th>
+                                                    <th>Ders Adı</th>
+                                                    <th>Gün</th>
+                                                    <th>Saat</th>
+                                                    <th>Sınıf</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="item : ${scheduleItems}">
+                                                    <td th:text="${item.course.code}"></td>
+                                                    <td th:text="${item.course.name}"></td>
+                                                    <td th:text="${item.dayOfWeek.turkishName}"></td>
+                                                    <td>
+                                                        <span th:text="${item.startHour}"></span>:00 - 
+                                                        <span th:text="${item.endHour}"></span>:00
+                                                    </td>
+                                                    <td>Belirtilmedi</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="mt-3">
+                                            <a href="/instructor/schedule" class="btn btn-outline-primary">
+                                                <i class="fas fa-eye me-2"></i>Detaylı Ders Programı
+                                            </a>
+                                        </div>
+                                    </div>
+                                    
+                                    <div th:if="${schedule == null || scheduleItems == null || scheduleItems.isEmpty()}" class="text-center py-4">
+                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                        <p>Henüz oluşturulmuş veya size atanmış bir ders programı bulunmamaktadır.</p>
+                                        <p class="small text-muted">Ders programı bölüm başkanı tarafından oluşturulduğunda burada görüntülenecektir.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

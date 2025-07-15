@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müsaitlik Ekle/Düzenle - Eğitimci Paneli</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark text-white p-0 min-vh-100">
+                <div class="p-2 border-bottom">
+                    <h6>Ders Programı Sistemi</h6>
+                    <small class="text-muted">Eğitimci</small>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/instructor/dashboard">
+                            <i class="fas fa-home me-1"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/instructor/courses">
+                            <i class="fas fa-book me-1"></i> Derslerim
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/instructor/availability">
+                            <i class="fas fa-clock me-1"></i> Müsaitlik
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/instructor/schedule">
+                            <i class="fas fa-calendar me-1"></i> Programım
+                        </a>
+                    </li>
+                    <li class="nav-item mt-2">
+                        <a class="nav-link text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Çıkış
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-3">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>
+                        <i class="fas fa-clock me-1"></i>
+                        <span th:text="${availability.id == null ? 'Yeni Müsaitlik' : 'Müsaitlik Düzenle'}"></span>
+                    </h5>
+                    <a href="/instructor/availability" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Geri
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-light py-2">
+                        <span class="fs-6 fw-medium">Müsaitlik Bilgileri</span>
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="alert alert-info py-2 mb-2 small">
+                            <i class="fas fa-info-circle"></i>
+                            Lütfen hangi gün ve saatlerde ders verebileceğinizi belirtin. Bu bilgiler ders programı oluşturulurken dikkate alınacaktır.
+                        </div>
+                        
+                        <form th:action="@{/instructor/availability/save}" th:object="${availability}" method="post">
+                            <input type="hidden" th:field="*{id}" />
+                            
+                            <div class="mb-3">
+                                <label for="dayOfWeek" class="form-label">Gün <span class="text-danger">*</span></label>
+                                <select class="form-select" id="dayOfWeek" th:field="*{dayOfWeek}" required>
+                                    <option value="">Gün Seçin</option>
+                                    <option th:each="day : ${days}" 
+                                            th:value="${day}" 
+                                            th:text="${day.turkishName}"></option>
+                                </select>
+                                <div class="text-danger" th:if="${#fields.hasErrors('dayOfWeek')}" th:errors="*{dayOfWeek}"></div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="startHour" class="form-label">Başlangıç Saati <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="startHour" th:field="*{startHour}" required>
+                                        <option value="">Saat Seçin</option>
+                                        <option th:each="hour : ${hours}" 
+                                                th:value="${hour}" 
+                                                th:text="${hour + ':00'}"></option>
+                                    </select>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('startHour')}" th:errors="*{startHour}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="endHour" class="form-label">Bitiş Saati <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="endHour" th:field="*{endHour}" required>
+                                        <option value="">Saat Seçin</option>
+                                        <option th:each="hour : ${hours}" 
+                                                th:value="${hour}" 
+                                                th:text="${hour + ':00'}"></option>
+                                    </select>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('endHour')}" th:errors="*{endHour}"></div>
+                                    <div class="form-text">Başlangıç saatinden sonraki bir bitiş saati seçin.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/instructor/availability" class="btn btn-sm btn-light me-md-2">İptal</a>
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-save me-1"></i>Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header bg-light py-2">
+                        <span class="fs-6 fw-medium"><i class="fas fa-lightbulb me-1"></i>Hatırlatmalar</span>
+                    </div>
+                    <div class="card-body py-2">
+                        <ul class="list-group small">
+                            <li class="list-group-item py-2">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                Lütfen müsait olduğunuz zaman aralığı belirtin. Örneğin; 9:00-12:00 arasında müsait olduğunuzu belirtmek için başlangıç saati olarak 9, bitiş saati olarak 12 seçin.
+                            </li>
+                            <li class="list-group-item py-2">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                Aynı gün ve saatte çakışan müsaitlik kayıtları eklenemez.
+                            </li>
+                            <li class="list-group-item py-2">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                Müsaitlik bilgilerinizi ne kadar detaylı ve doğru girerseniz, oluşturulacak ders programı da o kadar size uygun olacaktır.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

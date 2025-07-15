@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelen Kutusu</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .unread {
+            font-weight: bold;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        .message-row {
+            cursor: pointer;
+        }
+        .message-row:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .message-subject {
+            width: 30%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .message-content {
+            width: 40%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Otomatik Ders Programı</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item" sec:authorize="hasRole('INSTRUCTOR')">
+                        <a class="nav-link" th:href="@{/instructor/dashboard}">Eğitimci Paneli</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('DEPARTMENT_HEAD')">
+                        <a class="nav-link" th:href="@{/department-head/dashboard}">Bölüm Başkanı Paneli</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                            Mesajlar <span th:if="${unreadCount > 0}" class="badge bg-danger" th:text="${unreadCount}"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/messages/inbox}">Gelen Kutusu</a></li>
+                            <li><a class="dropdown-item" th:href="@{/messages/sent}">Gönderilen Kutusu</a></li>
+                            <li><a class="dropdown-item" th:href="@{/messages/compose}">Yeni Mesaj</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" 
+                           sec:authentication="name">Kullanıcı</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" th:href="@{/profile}">Profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post">
+                                    <button type="submit" class="dropdown-item">Çıkış</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Alerts -->
+        <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${success != null}">
+            <i class="fas fa-check-circle me-2"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${error != null}">
+            <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Message List -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0" th:text="${folder}">Gelen Kutusu</h5>
+                <a th:href="@{/messages/compose}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-pen me-1"></i> Yeni Mesaj
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Durum</th>
+                                <th>Gönderen</th>
+                                <th>Konu</th>
+                                <th>İçerik</th>
+                                <th>Tarih</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${messages.isEmpty()}">
+                                <td colspan="6" class="text-center py-3">Mesaj bulunamadı</td>
+                            </tr>
+                            <tr th:each="message : ${messages}" 
+                                th:classappend="${!message.isRead} ? 'unread' : ''"
+                                class="message-row"
+                                th:onclick="'window.location.href=\'' + @{/messages/{id}(id=${message.id})} + '\''">
+                                <td>
+                                    <i class="fas fa-envelope" th:if="${!message.isRead}"></i>
+                                    <i class="fas fa-envelope-open-text" th:if="${message.isRead}"></i>
+                                </td>
+                                <td th:text="${message.sender.fullName}">Gönderen</td>
+                                <td class="message-subject" th:text="${message.subject}">Konu</td>
+                                <td class="message-content" th:text="${message.content}">İçerik</td>
+                                <td th:text="${#temporals.format(message.sentAt, 'dd.MM.yyyy HH:mm')}">Tarih</td>
+                                <td>
+                                    <form th:action="@{/messages/{id}/delete(id=${message.id})}" method="post"
+                                          onsubmit="return confirm('Bu mesajı silmek istediğinize emin misiniz?');"
+                                          onclick="event.stopPropagation();">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

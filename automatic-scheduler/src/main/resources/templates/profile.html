@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Otomatik Ders Programı Sistemi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .profile-container {
+            padding: 2rem 0;
+        }
+        .profile-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .profile-header {
+            background-color: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+            padding: 2rem;
+            position: relative;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #6c757d;
+            margin: 0 auto 1rem;
+        }
+        .profile-tabs .nav-link {
+            padding: 1rem;
+            font-weight: 500;
+        }
+        .profile-tabs .nav-link.active {
+            font-weight: 600;
+            border-bottom: 3px solid #0d6efd;
+        }
+        .sidebar-nav {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark text-white p-0 min-vh-100">
+                <div class="p-3 border-bottom">
+                    <h5>Ders Programı Sistemi</h5>
+                    <p class="text-muted small" sec:authorize="hasRole('ROLE_INSTRUCTOR')">Eğitimci</p>
+                    <p class="text-muted small" sec:authorize="hasRole('ROLE_DEPARTMENT_HEAD')">Bölüm Başkanı</p>
+                </div>
+                <ul class="nav flex-column">
+                    <!-- Eğitimci Menüsü -->
+                    <div sec:authorize="hasRole('ROLE_INSTRUCTOR')">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/instructor/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i> Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/instructor/courses">
+                                <i class="fas fa-book me-2"></i> Derslerim
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/instructor/availability">
+                                <i class="fas fa-calendar-check me-2"></i> Müsaitlik
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/instructor/schedule">
+                                <i class="fas fa-calendar-alt me-2"></i> Ders Programım
+                            </a>
+                        </li>
+                    </div>
+                    
+                    <!-- Bölüm Başkanı Menüsü -->
+                    <div sec:authorize="hasRole('ROLE_DEPARTMENT_HEAD')">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/department-head/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i> Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/department-head/courses">
+                                <i class="fas fa-book me-2"></i> Dersler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/department-head/instructors">
+                                <i class="fas fa-chalkboard-teacher me-2"></i> Eğitimciler
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/department-head/schedules">
+                                <i class="fas fa-calendar-alt me-2"></i> Ders Programları
+                            </a>
+                        </li>
+                    </div>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/profile">
+                            <i class="fas fa-user-circle me-2"></i> Profil
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i> Çıkış Yap
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div class="profile-container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card profile-card">
+                                <div class="profile-header text-center">
+                                    <div class="profile-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <h3 class="mb-2" sec:authentication="name">username</h3>
+                                    <p class="text-muted mb-0" sec:authorize="hasRole('ROLE_INSTRUCTOR')">Eğitimci</p>
+                                    <p class="text-muted mb-0" sec:authorize="hasRole('ROLE_DEPARTMENT_HEAD')">Bölüm Başkanı</p>
+                                </div>
+                                
+                                <!-- Profile Tabs -->
+                                <ul class="nav nav-tabs profile-tabs" id="profileTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-info" type="button" role="tab" aria-controls="profile-info" aria-selected="true">
+                                            <i class="fas fa-info-circle me-2"></i>Profil Bilgileri
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-change" type="button" role="tab" aria-controls="password-change" aria-selected="false">
+                                            <i class="fas fa-key me-2"></i>Şifre Değiştir
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <!-- Tab Content -->
+                                <div class="tab-content p-4" id="profileTabContent">
+                                    <!-- Profile Info Tab -->
+                                    <div class="tab-pane fade show active" id="profile-info" role="tabpanel" aria-labelledby="profile-tab">
+                                        <form th:action="@{/profile/update}" th:object="${user}" method="post">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="firstName" class="form-label">Ad</label>
+                                                    <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="lastName" class="form-label">Soyad</label>
+                                                    <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="email" class="form-label">E-posta</label>
+                                                <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="username" class="form-label">Kullanıcı Adı</label>
+                                                <input type="text" class="form-control" id="username" th:field="*{username}" readonly>
+                                                <div class="form-text">Kullanıcı adı değiştirilemez.</div>
+                                            </div>
+                                            
+                                            <div sec:authorize="hasRole('ROLE_INSTRUCTOR')">
+                                                <div class="mb-3">
+                                                    <label for="title" class="form-label">Unvan</label>
+                                                    <select class="form-select" id="title" name="title">
+                                                        <option value="">Unvan Seçiniz</option>
+                                                        <option value="Prof. Dr." th:selected="${instructor != null && instructor.title == 'Prof. Dr.'}">Prof. Dr.</option>
+                                                        <option value="Doç. Dr." th:selected="${instructor != null && instructor.title == 'Doç. Dr.'}">Doç. Dr.</option>
+                                                        <option value="Dr. Öğr. Üyesi" th:selected="${instructor != null && instructor.title == 'Dr. Öğr. Üyesi'}">Dr. Öğr. Üyesi</option>
+                                                        <option value="Öğr. Gör." th:selected="${instructor != null && instructor.title == 'Öğr. Gör.'}">Öğr. Gör.</option>
+                                                        <option value="Arş. Gör." th:selected="${instructor != null && instructor.title == 'Arş. Gör.'}">Arş. Gör.</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-save me-2"></i>Bilgileri Güncelle
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Password Change Tab -->
+                                    <div class="tab-pane fade" id="password-change" role="tabpanel" aria-labelledby="password-tab">
+                                        <form th:action="@{/profile/change-password}" method="post">
+                                            <div class="mb-3">
+                                                <label for="currentPassword" class="form-label">Mevcut Şifre</label>
+                                                <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="newPassword" class="form-label">Yeni Şifre</label>
+                                                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="confirmPassword" class="form-label">Yeni Şifre (Tekrar)</label>
+                                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                            </div>
+                                            
+                                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-key me-2"></i>Şifreyi Değiştir
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

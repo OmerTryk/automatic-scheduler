@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eğitimci Dersleri - Bölüm Başkanı Paneli</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark text-white p-0 min-vh-100">
+                <div class="p-3 border-bottom">
+                    <h5>Ders Programı Sistemi</h5>
+                    <p class="text-muted small">Bölüm Başkanı</p>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/courses">
+                            <i class="fas fa-book me-2"></i> Dersler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/department-head/instructors">
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Eğitimciler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/schedules">
+                            <i class="fas fa-calendar-alt me-2"></i> Ders Programları
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i> Çıkış Yap
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-chalkboard-teacher me-2"></i>
+                        <span th:text="${instructor.user.fullName}"></span> - Dersler
+                    </h2>
+                    <a href="/department-head/instructors" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Eğitimcilere Dön
+                    </a>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Eğitimci Bilgileri</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Ad Soyad:</strong> <span th:text="${instructor.user.fullName}"></span></p>
+                                <p><strong>E-posta:</strong> <span th:text="${instructor.user.email}"></span></p>
+                                <p><strong>Unvan:</strong> <span th:text="${instructor.title}"></span></p>
+                                <p><strong>Bölüm:</strong> <span th:text="${instructor.department.name}"></span></p>
+                                <hr>
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/department-head/instructors/{id}/availability(id=${instructor.id})}" class="btn btn-outline-success">
+                                        <i class="fas fa-calendar-check me-2"></i>Müsaitlik Bilgileri
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-book me-2"></i>Atanan Dersler</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${instructorCourses.empty}" class="text-center py-3">
+                                    <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                                    <p>Eğitimciye henüz ders atanmamış.</p>
+                                </div>
+                                
+                                <div th:if="${!instructorCourses.empty}" class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Ders Kodu</th>
+                                                <th>Ders Adı</th>
+                                                <th>Kredi</th>
+                                                <th>Haftalık Saat</th>
+                                                <th>İşlem</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="course : ${instructorCourses}">
+                                                <td th:text="${course.code}"></td>
+                                                <td th:text="${course.name}"></td>
+                                                <td th:text="${course.credits}"></td>
+                                                <td th:text="${course.weeklyHours}"></td>
+                                                <td>
+                                                    <form th:action="@{/department-head/instructors/{instructorId}/courses/remove(instructorId=${instructor.id})}" method="post" class="d-inline">
+                                                        <input type="hidden" name="courseId" th:value="${course.id}" />
+                                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                                                onclick="return confirm('Bu dersi eğitimciden kaldırmak istediğinize emin misiniz?')">
+                                                            <i class="fas fa-trash-alt"></i> Kaldır
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Ders Ata</h5>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{/department-head/instructors/{instructorId}/courses/assign(instructorId=${instructor.id})}" method="post">
+                                    <div class="mb-3">
+                                        <label for="courseId" class="form-label">Atanacak Ders</label>
+                                        <select class="form-select" id="courseId" name="courseId" required>
+                                            <option value="">Bir ders seçin</option>
+                                            <option th:each="course : ${allCourses}" 
+                                                    th:value="${course.id}" 
+                                                    th:text="${course.code + ' - ' + course.name}"
+                                                    th:if="${!instructorCourses.contains(course)}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Dersi Ata
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                                <div th:if="${allCourses.size() == instructorCourses.size()}" class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle me-2"></i> Tüm dersler eğitimcilere atanmış durumda.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

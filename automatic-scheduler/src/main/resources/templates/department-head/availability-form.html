@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müsaitlik Formu - Bölüm Başkanı Paneli</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .availability-grid {
+            border: 1px solid #dee2e6;
+        }
+        .availability-cell {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .availability-cell.available {
+            background-color: #d1e7dd;
+        }
+        .availability-cell.unavailable {
+            background-color: #f8d7da;
+        }
+        .input-hours {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark text-white p-0 min-vh-100">
+                <div class="p-3 border-bottom">
+                    <h5>Ders Programı Sistemi</h5>
+                    <p class="text-muted small">Bölüm Başkanı</p>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/courses">
+                            <i class="fas fa-book me-2"></i> Dersler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/department-head/instructors">
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Eğitimciler
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/department-head/schedules">
+                            <i class="fas fa-calendar-alt me-2"></i> Ders Programları
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i> Çıkış Yap
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-calendar-check me-2"></i>
+                        <span th:text="${instructor.user.firstName + ' ' + instructor.user.lastName}"></span> - Müsaitlik Düzenleme
+                    </h2>
+                    <a href="/department-head/instructors" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Eğitimcilere Dön
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Müsaitlik Bilgilerini Düzenle</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Bilgi:</strong> Eğitimcinin müsait olduğu zamanları seçerek müsaitlik çizelgesini düzenleyebilirsiniz. Yeşil hücreler müsait olunan saatleri gösterir.
+                        </div>
+                        
+                        <form th:action="@{/department-head/instructors/{id}/availability/save(id=${instructor.id})}" method="post" id="availabilityForm">
+                            <div class="table-responsive">
+                                <table class="table table-bordered availability-grid">
+                                    <thead>
+                                        <tr class="bg-light">
+                                            <th style="width: 100px;">Saat / Gün</th>
+                                            <th th:each="day : ${days}" th:text="${#strings.replace(day.toString(), '_', ' ')}"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="hour : ${hours}">
+                                            <td class="text-center fw-bold">
+                                                <span th:text="${hour}"></span>:00 - <span th:text="${hour + 1}"></span>:00
+                                            </td>
+                                            <td th:each="day : ${days}" class="p-0">
+                                                <div th:with="isAvailable=${availabilities.stream().anyMatch(a -> a.getDayOfWeek() == day && a.getHour() == hour)}"
+                                                     th:data-day="${day}" 
+                                                     th:data-hour="${hour}"
+                                                     th:class="${'availability-cell ' + (isAvailable ? 'available' : 'unavailable')}"
+                                                     onclick="toggleAvailability(this)">
+                                                    <span th:if="${isAvailable}" class="availability-icon">
+                                                        <i class="fas fa-check text-success"></i>
+                                                    </span>
+                                                    <span th:unless="${isAvailable}" class="availability-icon">
+                                                        <i class="fas fa-times text-danger"></i>
+                                                    </span>
+                                                    
+                                                    <!-- Gizli input alanları -->
+                                                    <input type="checkbox" 
+                                                           th:name="${'availabilities[' + day + '-' + hour + ']'}"
+                                                           th:checked="${isAvailable}"
+                                                           class="input-hours">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="availability-cell available me-2" style="width: 24px; height: 24px;"></div>
+                                    <span>Müsait</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="availability-cell unavailable me-2" style="width: 24px; height: 24px;"></div>
+                                    <span>Müsait Değil</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 d-flex justify-content-between">
+                                <div>
+                                    <button type="button" class="btn btn-secondary me-2" onclick="selectAllHours()">
+                                        <i class="fas fa-check-square me-2"></i>Tümünü Seç
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="clearAllHours()">
+                                        <i class="fas fa-square me-2"></i>Tümünü Temizle
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleAvailability(cell) {
+            // Hücrenin durumunu değiştir
+            cell.classList.toggle('available');
+            cell.classList.toggle('unavailable');
+            
+            // İkonu değiştir
+            const icon = cell.querySelector('.availability-icon');
+            if (cell.classList.contains('available')) {
+                icon.innerHTML = '<i class="fas fa-check text-success"></i>';
+                cell.querySelector('input').checked = true;
+            } else {
+                icon.innerHTML = '<i class="fas fa-times text-danger"></i>';
+                cell.querySelector('input').checked = false;
+            }
+        }
+        
+        function selectAllHours() {
+            document.querySelectorAll('.availability-cell').forEach(cell => {
+                if (!cell.classList.contains('available')) {
+                    toggleAvailability(cell);
+                }
+            });
+        }
+        
+        function clearAllHours() {
+            document.querySelectorAll('.availability-cell').forEach(cell => {
+                if (cell.classList.contains('available')) {
+                    toggleAvailability(cell);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

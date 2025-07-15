@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hata - Otomatik Ders Programı Sistemi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-card {
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .error-icon {
+            font-size: 5rem;
+            color: #dc3545;
+            margin-bottom: 1.5rem;
+        }
+        .btn-return {
+            font-weight: 600;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card error-card">
+                        <div class="card-body text-center p-5">
+                            <div class="error-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            
+                            <h1 class="mb-3">Üzgünüz, bir hata oluştu!</h1>
+                            
+                            <div th:if="${status}" class="mb-3">
+                                <h2 class="text-danger" th:text="${status + ' - ' + error}">404 - Not Found</h2>
+                            </div>
+                            
+                            <p class="lead mb-4" th:if="${message}">
+                                <span th:text="${message}">Hata mesajı</span>
+                            </p>
+                            
+                            <p class="lead mb-4" th:unless="${message}">
+                                İstediğiniz sayfa bulunamadı veya bir hata oluştu. Lütfen tekrar deneyiniz.
+                            </p>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="/" class="btn btn-primary btn-return">
+                                    <i class="fas fa-home me-2"></i>Ana Sayfaya Dön
+                                </a>
+                                <button onclick="window.history.back()" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Geri Dön
+                                </button>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <p class="small text-muted">
+                                    Sorun devam ederse, lütfen sistem yöneticisiyle iletişime geçiniz.
+                                </p>
+                                <p class="small text-muted" th:if="${timestamp}">
+                                    Hata Zamanı: <span th:text="${#dates.format(timestamp, 'dd-MM-yyyy HH:mm')}"></span>
+                                </p>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-top" th:if="${exception != null}">
+                                <div class="accordion" id="errorDetailsAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingErrorDetails">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseErrorDetails" aria-expanded="false" aria-controls="collapseErrorDetails">
+                                                Teknik Detaylar (Yöneticiler İçin)
+                                            </button>
+                                        </h2>
+                                        <div id="collapseErrorDetails" class="accordion-collapse collapse" aria-labelledby="headingErrorDetails" data-bs-parent="#errorDetailsAccordion">
+                                            <div class="accordion-body">
+                                                <div class="text-start">
+                                                    <p><strong>Exception:</strong> <span th:text="${exception}"></span></p>
+                                                    <p th:if="${trace}"><strong>Trace:</strong> <span th:text="${trace}"></span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otomatik Ders Programı Sistemi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #4a6bea, #2542db);
+            color: white;
+            padding: 100px 0;
+            border-radius: 0 0 50px 50px;
+        }
+        .feature-card {
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #4a6bea;
+            background-color: rgba(74, 107, 234, 0.1);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+        }
+        .cta-section {
+            background-color: #f8f9fa;
+            padding: 80px 0;
+            border-radius: 50px;
+            margin-top: 50px;
+        }
+        .btn-primary {
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            border-radius: 50px;
+        }
+        .navbar {
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .footer {
+            background-color: #212529;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px 0 20px;
+            margin-top: 80px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                Ders Programı Sistemi
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Özellikler</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">Hakkında</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-2" href="/register">Kayıt Ol</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">Otomatik Ders Programı Sistemi</h1>
+            <p class="lead mb-5">Akademik eğitim kurumları için genetik algoritma bazlı otomatik ders programı oluşturma ve yönetme platformu</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/register" class="btn btn-light btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Kayıt Ol
+                </a>
+                <a href="/login" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="py-5 mt-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Sistemin Özellikleri</h2>
+                <p class="text-muted">Ders programı oluşturma sürecini kolaylaştıran temel fonksiyonlar</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="h5 fw-bold">Genetik Algoritma</h3>
+                        <p class="text-muted">Optimum ders programı oluşturmak için gelişmiş genetik algoritma kullanımı</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3 class="h5 fw-bold">Eğitimci Müsaitliği</h3>
+                        <p class="text-muted">Eğitimcilerin müsaitlik durumlarını göz önünde bulundurarak program oluşturma</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3 class="h5 fw-bold">Bölüm Yönetimi</h3>
+                        <p class="text-muted">Bölüm başkanları için eğitimci ve ders atama, program yönetimi araçları</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3 class="h5 fw-bold">Çakışma Önleme</h3>
+                        <p class="text-muted">Eğitimci ve derslik çakışmalarını otomatik olarak önleyen akıllı planlama</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-print"></i>
+                        </div>
+                        <h3 class="h5 fw-bold">Rapor ve Çıktılar</h3>
+                        <p class="text-muted">Ders programlarını kolayca yazdırabilme ve görüntüleyebilme imkanı</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <h3 class="h5 fw-bold">Dinamik Güncelleme</h3>
+                        <p class="text-muted">Program dönemleri arasında kolay geçiş ve güncellemeler yapabilme</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="py-5 mt-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="fw-bold mb-4">Hakkında</h2>
+                    <p class="lead">Otomatik Ders Programı Sistemi, akademik kurumların ders programı oluşturma sürecini kolaylaştırmak için geliştirilmiş bir web uygulamasıdır.</p>
+                    <p>Genetik algoritmalar kullanarak eğitimcilerin müsaitlik durumları, dersliklerin kapasiteleri ve ders saatleri gibi kısıtlamaları göz önünde bulundurarak optimum ders programları oluşturur.</p>
+                    <p>Sistem, bölüm başkanları ve eğitimciler için kullanımı kolay bir arayüz sunarak, program oluşturma ve yönetme sürecini verimli hale getirir.</p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-4">
+                            <h3 class="h5 fw-bold mb-4">Nasıl Çalışır?</h3>
+                            <ul class="list-unstyled">
+                                <li class="d-flex align-items-center mb-3">
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">1</span>
+                                    <span>Bölüm başkanları derslerini ve eğitimcilerini sisteme ekler</span>
+                                </li>
+                                <li class="d-flex align-items-center mb-3">
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">2</span>
+                                    <span>Eğitimciler müsaitlik durumlarını belirtir</span>
+                                </li>
+                                <li class="d-flex align-items-center mb-3">
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">3</span>
+                                    <span>Bölüm başkanı ders programı oluşturma talebinde bulunur</span>
+                                </li>
+                                <li class="d-flex align-items-center mb-3">
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">4</span>
+                                    <span>Genetik algoritma çalışır ve optimum programı oluşturur</span>
+                                </li>
+                                <li class="d-flex align-items-center">
+                                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">5</span>
+                                    <span>Oluşturulan program eğitimciler ve bölüm başkanları tarafından görüntülenir</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-4">Hemen Başlayın</h2>
+            <p class="lead mb-4">Kayıt olun ve ders programı oluşturma sürecini otomatikleştirin</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/register" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Kayıt Ol
+                </a>
+                <a href="/login" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-white">Otomatik Ders Programı Sistemi</h5>
+                    <p>Akademik kurumlar için en iyi ders programı oluşturma çözümü</p>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="text-white">Bağlantılar</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-muted">Ana Sayfa</a></li>
+                        <li><a href="#features" class="text-muted">Özellikler</a></li>
+                        <li><a href="#about" class="text-muted">Hakkında</a></li>
+                        <li><a href="/login" class="text-muted">Giriş Yap</a></li>
+                        <li><a href="/register" class="text-muted">Kayıt Ol</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="text-white">İletişim</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i>info@dersprogrami.com</li>
+                        <li><i class="fas fa-phone me-2"></i>+90 (212) 555 1234</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 Otomatik Ders Programı Sistemi. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
